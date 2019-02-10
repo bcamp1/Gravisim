@@ -5,4 +5,4 @@ authors = ["Branson Camp <camp.branson@gmail.com>"]
 
 [dependencies.sdl2]
 version = "0.31.0"
-features = ["ttf", "gfx", "image"]
+features = ["gfx"]
