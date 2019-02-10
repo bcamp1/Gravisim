@@ -1,0 +1,8 @@
+[package]
+name = "gravisim"
+version = "0.1.0"
+authors = ["Branson Camp <camp.branson@gmail.com>"]
+
+[dependencies.sdl2]
+version = "0.31.0"
+features = ["ttf", "gfx", "image"]
