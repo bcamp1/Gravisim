@@ -57,6 +57,7 @@ impl Body {
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas, cam: &Cam) {
-        canvas.filled_circle((self.x - cam.x) as i16, (self.y - cam.y) as i16, self.size as i16, self.color);
+        let t = cam.transform((self.x, self.y));
+        canvas.filled_circle(t.0 as i16, t.1 as i16, (self.size * cam.zoom) as i16, self.color);
     }
 }

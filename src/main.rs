@@ -26,7 +26,7 @@ fn main() {
 
     let window = video_subsystem.window(format!("Gravisim").as_str(), window_size.0, window_size.1)
         .position_centered()
-        .allow_highdpi()
+        //.allow_highdpi()
         .build()
         .unwrap();
 
@@ -47,6 +47,7 @@ fn main() {
     let mut mouse_y_raw = 0f32;
     let mut mouse_x = 0f32;
     let mut mouse_y = 0f32;
+    let mut raw_zoom = 0f32;
 
     let mut mouse_pressed = false;
     let mut pmouse_pressed = false;
@@ -62,10 +63,11 @@ fn main() {
                     system.bodies = vec!();
                 },
                 Event::MouseWheel {y: y_pos, ..} => {
-                    selected_size += y_pos as f32;
-                    if selected_size < 1.0 {
-                        selected_size = 1.0;
-                    }
+                    let delta_zoom = 0.01 * y_pos as f32;
+                    let focus_point = cam.reverse_transform((mouse_x, mouse_y));
+                    cam.zoom += delta_zoom;
+                    cam.x += delta_zoom * focus_point.0;
+                    cam.y += delta_zoom * focus_point.1;
                 },
                 _ => {}
             }
@@ -75,10 +77,12 @@ fn main() {
         let mouse_state = MouseState::new(&event_pump);
 
 
-        mouse_x_raw = (mouse_state.x() as f32 * res_mult);
-        mouse_y_raw = (mouse_state.y() as f32 * res_mult);
-        mouse_x = mouse_x_raw + cam.x;
-        mouse_y = mouse_y_raw + cam.y;
+        mouse_x= (mouse_state.x() as f32 * res_mult);
+        mouse_y = (mouse_state.y() as f32 * res_mult);
+
+        if !pos_selected {
+            selected_pos = cam.reverse_transform((mouse_x, mouse_y));
+        }
 
         pmouse_pressed = mouse_pressed;
         mouse_pressed = mouse_state.left();
@@ -86,42 +90,59 @@ fn main() {
         if mouse_pressed && !pmouse_pressed && !pos_selected {
             pos_selected = true;
             pmouse_pressed = true;
-            selected_pos = (mouse_x, mouse_y);
         }
 
         if pos_selected {
             if mouse_pressed && pmouse_pressed {
-                selected_vel = ((mouse_x - selected_pos.0) / 50.0, (mouse_y - selected_pos.1) / 50.0);
+                let point1 = selected_pos;
+                let point2 = cam.reverse_transform((mouse_x, mouse_y));
+                selected_vel = ((point2.0 - point1.0) / 50.0, (point2.1 - point1.1) / 50.0);
             } else {
                 pos_selected = false;
-                system.add(selected_pos.0, selected_pos.1, selected_vel.0, selected_vel.1, 1.0, selected_size);
+                system.add(selected_pos.0, selected_pos.1, selected_vel.0, selected_vel.1, 1.0, selected_size / cam.zoom);
             }
         }
 
         // Pan and zoom
         if key_state.is_scancode_pressed(Scancode::D) {
-            cam.x += 1.0;
+            cam.x += 1.0 / cam.zoom;
         }
         if key_state.is_scancode_pressed(Scancode::A) {
-            cam.x -= 1.0;
+            cam.x -= 1.0 / cam.zoom;
         }
         if key_state.is_scancode_pressed(Scancode::W) {
-            cam.y -= 1.0;
+            cam.y -= 1.0 / cam.zoom;
         }
         if key_state.is_scancode_pressed(Scancode::S) {
-            cam.y += 1.0;
+            cam.y += 1.0 / cam.zoom;
+        }
+        if key_state.is_scancode_pressed(Scancode::Z) {
+            selected_size += 0.1;
+            if selected_size < 1.0 {
+                selected_size = 1.0;
+            }
+        }
+        if key_state.is_scancode_pressed(Scancode::X) {
+            selected_size -= 0.1;
+            if selected_size < 1.0 {
+                selected_size = 1.0;
+            }
         }
 
         system.update();
-
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
-        if !pos_selected {
-            canvas.filled_circle(mouse_x_raw as i16, mouse_y_raw as i16, selected_size as i16, (255, 255, 255, 50));
-        } else {
-            canvas.filled_circle((selected_pos.0 - cam.x) as i16, (selected_pos.1 - cam.y) as i16, selected_size as i16, (255, 255, 255, 50));
-            canvas.thick_line((selected_pos.0 - cam.x) as i16, (selected_pos.1 - cam.y) as i16, (selected_pos.0 - cam.x + selected_vel.0 * 50.0) as i16, (selected_pos.1 - cam.y + selected_vel.1 * 50.0) as i16, 5, (255, 255, 255, 50));
+
+        let selected_transformed = cam.transform(selected_pos);
+        canvas.filled_circle(selected_transformed.0 as i16, selected_transformed.1 as i16, (selected_size) as i16, (255, 255, 255, 50));
+
+        if pos_selected {
+            let selected_vel_transformed = cam.transform(selected_vel);
+            let point1 = selected_transformed;
+            let point2 = (mouse_x, mouse_y);
+            canvas.thick_line(point1.0 as i16, point1.1 as i16, point2.0 as i16, point2.1 as i16, 5, (255, 255, 255, 50));
         }
+
         system.render(&mut canvas, &cam);
         canvas.present();
     }
