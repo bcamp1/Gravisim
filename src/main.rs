@@ -63,9 +63,13 @@ fn main() {
                     system.bodies = vec!();
                 },
                 Event::MouseWheel {y: y_pos, ..} => {
-                    let delta_zoom = 0.01 * y_pos as f32;
+                    let delta_raw = 0.01 * y_pos as f32;
+                    raw_zoom += delta_raw;
+                    let p_zoom = cam.zoom;
+                    cam.zoom = 2f32.powf(raw_zoom);
+                    let delta_zoom = cam.zoom - p_zoom;
                     let focus_point = cam.reverse_transform((mouse_x, mouse_y));
-                    cam.zoom += delta_zoom;
+                    //cam.zoom += delta_zoom;
                     cam.x += delta_zoom * focus_point.0;
                     cam.y += delta_zoom * focus_point.1;
                 },
@@ -77,8 +81,8 @@ fn main() {
         let mouse_state = MouseState::new(&event_pump);
 
 
-        mouse_x= (mouse_state.x() as f32 * res_mult);
-        mouse_y = (mouse_state.y() as f32 * res_mult);
+        mouse_x = mouse_state.x() as f32 * res_mult;
+        mouse_y = mouse_state.y() as f32 * res_mult;
 
         if !pos_selected {
             selected_pos = cam.reverse_transform((mouse_x, mouse_y));
@@ -105,16 +109,16 @@ fn main() {
 
         // Pan and zoom
         if key_state.is_scancode_pressed(Scancode::D) {
-            cam.x += 1.0 / cam.zoom;
+            cam.x += 1.0 * cam.zoom;
         }
         if key_state.is_scancode_pressed(Scancode::A) {
-            cam.x -= 1.0 / cam.zoom;
+            cam.x -= 1.0 * cam.zoom;
         }
         if key_state.is_scancode_pressed(Scancode::W) {
-            cam.y -= 1.0 / cam.zoom;
+            cam.y -= 1.0 * cam.zoom;
         }
         if key_state.is_scancode_pressed(Scancode::S) {
-            cam.y += 1.0 / cam.zoom;
+            cam.y += 1.0 * cam.zoom;
         }
         if key_state.is_scancode_pressed(Scancode::Z) {
             selected_size += 0.1;
