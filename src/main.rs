@@ -63,9 +63,13 @@ fn main() {
     let mut fps_sw = Stopwatch::start_new();
 
     'running: loop {
+        //FPS and Time Mult
         let elapsed_nanos = fps_sw.elapsed().subsec_nanos();
         let fps = 1_000_000_000 / elapsed_nanos;
+        let time_mult = (elapsed_nanos as f32) * 400.0 / 1_000_000_000f32;
         fps_sw.restart();
+
+        // Events
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit {..} |
@@ -79,7 +83,7 @@ fn main() {
                     cam.y = 0.0;
                 },
                 Event::MouseWheel {y: y_pos, ..} => {
-                    let delta_raw = 0.01 * y_pos as f32;
+                    let delta_raw = 0.01 * time_mult * y_pos as f32;
                     raw_zoom += delta_raw;
                     let p_zoom = cam.zoom;
                     cam.zoom = 2f32.powf(raw_zoom);
@@ -125,31 +129,31 @@ fn main() {
 
         // Pan and zoom
         if key_state.is_scancode_pressed(Scancode::D) {
-            cam.x += 1.0 * cam.zoom;
+            cam.x += 1.0 * cam.zoom * time_mult;
         }
         if key_state.is_scancode_pressed(Scancode::A) {
-            cam.x -= 1.0 * cam.zoom;
+            cam.x -= 1.0 * cam.zoom * time_mult;
         }
         if key_state.is_scancode_pressed(Scancode::W) {
-            cam.y -= 1.0 * cam.zoom;
+            cam.y -= 1.0 * cam.zoom * time_mult;
         }
         if key_state.is_scancode_pressed(Scancode::S) {
-            cam.y += 1.0 * cam.zoom;
+            cam.y += 1.0 * cam.zoom * time_mult;
         }
         if key_state.is_scancode_pressed(Scancode::Z) {
-            selected_size += 0.1;
+            selected_size += 0.1 * time_mult;
             if selected_size < 1.0 {
                 selected_size = 1.0;
             }
         }
         if key_state.is_scancode_pressed(Scancode::X) {
-            selected_size -= 0.1;
+            selected_size -= 0.1 * time_mult;
             if selected_size < 1.0 {
                 selected_size = 1.0;
             }
         }
 
-        system.update();
+        system.update(&time_mult);
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 

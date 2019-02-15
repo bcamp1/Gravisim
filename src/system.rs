@@ -24,7 +24,7 @@ impl System {
         self.bodies.push(body);
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, mult: &f32) {
         let mut to_remove: Vec<usize> = vec!();
 
         for i in 0..self.bodies.len() {
@@ -42,15 +42,12 @@ impl System {
                     continue;
                 }
                 if i != j {
-
                     let body_j = self.bodies[j];
                     self.bodies[i].compute_gravity(body_j);
                     let body_i = self.bodies[i];
 
-
-                    //let is_collided = (R0 - R1)^2 <= (x0 - x1)^2 + (y0 - y1)^2 <= (R0 + R1)^2;
+                    // Collisions
                     let rad_sum = (body_i.size + body_j.size).powi(2);
-                    let rad_diff = (body_i.size - body_j.size).powi(2);
                     let distance = (body_i.x - body_j.x).powi(2) + (body_i.y - body_j.y).powi(2);
                     let is_collided = distance <= rad_sum;
 
@@ -73,7 +70,7 @@ impl System {
                 }
             }
             // Update Self
-            self.bodies[i].update_self();
+            self.bodies[i].update_self(mult);
         }
 
         // Remove bodies

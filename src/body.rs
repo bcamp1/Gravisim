@@ -34,15 +34,15 @@ impl Body {
         }
     }
 
-    pub fn update_self(&mut self) {
+    pub fn update_self(&mut self, mult: &f32) {
         self.past_x = self.x;
         self.past_y = self.y;
 
-        self.x += self.v_x;
-        self.y += self.v_y;
+        self.x += self.v_x * mult;
+        self.y += self.v_y * mult;
 
-        self.v_x += self.a_x;
-        self.v_y += self.a_y;
+        self.v_x += self.a_x * mult;
+        self.v_y += self.a_y * mult;
     }
 
     pub fn compute_gravity(&mut self, body: Body) {
