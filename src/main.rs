@@ -1,8 +1,10 @@
 extern crate sdl2;
+extern crate stopwatch;
 
 mod body;
 mod system;
 mod cam;
+mod gui;
 
 use sdl2::pixels::Color;
 use sdl2::keyboard::Keycode;
@@ -11,6 +13,7 @@ use sdl2::mouse::MouseState;
 use sdl2::keyboard::Scancode;
 use sdl2::event::{Event, WindowEvent};
 use sdl2::gfx::primitives::DrawRenderer;
+use stopwatch::Stopwatch;
 
 const GRAVITY_CONST: f32 = 0.0005;
 const PI: f32 = 3.14159265;
@@ -26,7 +29,7 @@ fn main() {
 
     let window = video_subsystem.window(format!("Gravisim").as_str(), window_size.0, window_size.1)
         .position_centered()
-        //.allow_highdpi()
+        .allow_highdpi()
         .build()
         .unwrap();
 
@@ -52,7 +55,17 @@ fn main() {
     let mut mouse_pressed = false;
     let mut pmouse_pressed = false;
 
+    // GUI
+    let ttf_ctx = sdl2::ttf::init().expect("Failed to init SDL_TTF");
+    let font = gui::Text::new(&ttf_ctx, "./res/start.ttf", 12 * res_mult as u16, Color::RGB(255, 255, 255)).expect("Failed to create font");
+
+    // FPS
+    let mut fps_sw = Stopwatch::start_new();
+
     'running: loop {
+        let elapsed_nanos = fps_sw.elapsed().subsec_nanos();
+        let fps = 1_000_000_000 / elapsed_nanos;
+        fps_sw.restart();
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit {..} |
@@ -61,6 +74,9 @@ fn main() {
                 },
                 Event::KeyDown {keycode: Some(Keycode::C), ..} => {
                     system.bodies = vec!();
+                    cam.zoom = 1.0;
+                    cam.x = 0.0;
+                    cam.y = 0.0;
                 },
                 Event::MouseWheel {y: y_pos, ..} => {
                     let delta_raw = 0.01 * y_pos as f32;
@@ -148,6 +164,10 @@ fn main() {
         }
 
         system.render(&mut canvas, &cam);
+
+        // Render Fonts
+        font.draw_multiline(&mut canvas, format!("C: CLEAR\nZ/X: CHANGE SIZE\nSCROLL: ZOOM").as_str(), 10 * res_mult as i32, 10 * res_mult as i32, false, 20 * res_mult as i32);
+        font.draw(&mut canvas, format!("{} FPS", fps).as_str(), 10 * res_mult as i32, 10 * res_mult as i32, true);
         canvas.present();
     }
 }

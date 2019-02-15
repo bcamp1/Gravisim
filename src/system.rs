@@ -52,7 +52,7 @@ impl System {
                     let rad_sum = (body_i.size + body_j.size).powi(2);
                     let rad_diff = (body_i.size - body_j.size).powi(2);
                     let distance = (body_i.x - body_j.x).powi(2) + (body_i.y - body_j.y).powi(2);
-                    let is_collided = rad_diff <= distance && distance <= rad_sum;
+                    let is_collided = distance <= rad_sum;
 
                     if is_collided {
                         let bigger_index = if body_i.size >= body_j.size {
