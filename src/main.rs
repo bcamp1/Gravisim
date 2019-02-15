@@ -11,7 +11,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::keyboard::KeyboardState;
 use sdl2::mouse::MouseState;
 use sdl2::keyboard::Scancode;
-use sdl2::event::{Event, WindowEvent};
+use sdl2::event::Event;
 use sdl2::gfx::primitives::DrawRenderer;
 use stopwatch::Stopwatch;
 
@@ -22,8 +22,7 @@ fn main() {
     let mut cam = cam::Cam::new();
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
-    let mut window_size = (1280, 720);
-    let mut draw_size = (0, 0);
+    let window_size = (1280, 720);
 
     let mut res_mult = 1.0;
 
@@ -33,7 +32,7 @@ fn main() {
         .build()
         .unwrap();
 
-    draw_size = window.drawable_size();
+    let draw_size = window.drawable_size();
     res_mult = draw_size.0 as f32 / window.size().0 as f32;
 
     let mut canvas = window.into_canvas().accelerated().build().unwrap();
@@ -46,8 +45,6 @@ fn main() {
     let mut selected_vel = (0f32, 0f32);
     let mut pos_selected = false;
 
-    let mut mouse_x_raw = 0f32;
-    let mut mouse_y_raw = 0f32;
     let mut mouse_x = 0f32;
     let mut mouse_y = 0f32;
     let mut raw_zoom = 0f32;
@@ -158,13 +155,14 @@ fn main() {
         canvas.clear();
 
         let selected_transformed = cam.transform(selected_pos);
-        canvas.filled_circle(selected_transformed.0 as i16, selected_transformed.1 as i16, (selected_size) as i16, (255, 255, 255, 50));
+        canvas.filled_circle(selected_transformed.0 as i16, selected_transformed.1 as i16, (selected_size) as i16, (255, 255, 255, 50))
+            .expect("Failed to draw cursor circle");
 
         if pos_selected {
-            let selected_vel_transformed = cam.transform(selected_vel);
             let point1 = selected_transformed;
             let point2 = (mouse_x, mouse_y);
-            canvas.thick_line(point1.0 as i16, point1.1 as i16, point2.0 as i16, point2.1 as i16, 5, (255, 255, 255, 50));
+            canvas.thick_line(point1.0 as i16, point1.1 as i16, point2.0 as i16, point2.1 as i16, 5, (255, 255, 255, 50))
+                .expect("Failed to draw cursor line");
         }
 
         system.render(&mut canvas, &cam);
