@@ -76,7 +76,7 @@ fn main() {
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'running
                 },
-                Event::KeyDown {keycode: Some(Keycode::C), ..} => {
+                Event::KeyDown {keycode: Some(Keycode::R), ..} => {
                     system.bodies = vec!();
                     cam.zoom = 1.0;
                     cam.x = 0.0;
@@ -170,7 +170,7 @@ fn main() {
         system.render(&mut canvas, &cam);
 
         // Render Fonts
-        font.draw_multiline(&mut canvas, format!("C: CLEAR\nZ/X: CHANGE SIZE\nSCROLL: ZOOM").as_str(), 10 * res_mult as i32, 10 * res_mult as i32, false, 20 * res_mult as i32);
+        font.draw_multiline(&mut canvas, format!("R: RESET\nZ/X: CHANGE SIZE\nSCROLL: ZOOM").as_str(), 10 * res_mult as i32, 10 * res_mult as i32, false, 20 * res_mult as i32);
         font.draw(&mut canvas, format!("{} FPS", fps).as_str(), 10 * res_mult as i32, 10 * res_mult as i32, true);
         canvas.present();
     }
