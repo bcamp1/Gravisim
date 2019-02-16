@@ -78,6 +78,7 @@ fn main() {
                     cam.zoom = 1.0;
                     cam.x = 0.0;
                     cam.y = 0.0;
+                    raw_zoom = 0.0;
                 },
                 Event::MouseWheel {y: y_pos, ..} => {
                     let delta_raw = 0.01 * time_mult * y_pos as f32;
@@ -126,25 +127,25 @@ fn main() {
 
         // Pan and zoom
         if key_state.is_scancode_pressed(Scancode::D) {
-            cam.x += 1.0 * cam.zoom * time_mult;
+            cam.x += 1.0 / cam.zoom * time_mult;
         }
         if key_state.is_scancode_pressed(Scancode::A) {
-            cam.x -= 1.0 * cam.zoom * time_mult;
+            cam.x -= 1.0 / cam.zoom * time_mult;
         }
         if key_state.is_scancode_pressed(Scancode::W) {
-            cam.y -= 1.0 * cam.zoom * time_mult;
+            cam.y -= 1.0 / cam.zoom * time_mult;
         }
         if key_state.is_scancode_pressed(Scancode::S) {
-            cam.y += 1.0 * cam.zoom * time_mult;
+            cam.y += 1.0 / cam.zoom * time_mult;
         }
         if key_state.is_scancode_pressed(Scancode::Z) {
-            selected_size += 0.1 * time_mult;
+            selected_size += 0.2 * time_mult;
             if selected_size < 1.0 {
                 selected_size = 1.0;
             }
         }
         if key_state.is_scancode_pressed(Scancode::X) {
-            selected_size -= 0.1 * time_mult;
+            selected_size -= 0.2 * time_mult;
             if selected_size < 1.0 {
                 selected_size = 1.0;
             }
