@@ -21,6 +21,7 @@ impl System {
         body.v_y = v_y;
         body.mass = (4.0 / 3.0) * ::PI * size.powi(3) * density;
         body.size = size;
+        body.density = density;
         self.bodies.push(body);
     }
 
@@ -65,7 +66,7 @@ impl System {
 
                         to_remove.push(smaller_index);
                         self.bodies[bigger_index].mass += self.bodies[smaller_index].mass;
-                        self.bodies[bigger_index].size = (self.bodies[bigger_index].mass * (3.0 / (4.0 * ::PI))).powf(1.0 / 3.0);
+                        self.bodies[bigger_index].size = (self.bodies[bigger_index].mass * (3.0 / (4.0 * ::PI * self.bodies[bigger_index].density))).powf(1.0 / 3.0);
                     }
                 }
             }

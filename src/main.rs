@@ -32,6 +32,8 @@ fn main() {
         .build()
         .unwrap();
 
+    let mut show_hud = true;
+
     let draw_size = window.drawable_size();
     res_mult = draw_size.0 as f32 / window.size().0 as f32;
 
@@ -39,10 +41,14 @@ fn main() {
     let mut event_pump = sdl_context.event_pump().unwrap();
     let mut system = system::System::new();
 
+    // Editor Speeds
+    let density_speed = 0.1;
+
     // Editor
     let mut selected_size: f32 = 50.0;
     let mut selected_pos = (0f32, 0f32);
     let mut selected_vel = (0f32, 0f32);
+    let mut selected_density = 1f32;
     let mut pos_selected = false;
 
     let mut mouse_x = 0f32;
@@ -91,6 +97,9 @@ fn main() {
                     cam.x += delta_zoom * focus_point.0;
                     cam.y += delta_zoom * focus_point.1;
                 },
+                Event::KeyDown {keycode: Some(Keycode::H), ..} => {
+                    show_hud = !show_hud;
+                }
                 _ => {}
             }
         }
@@ -121,7 +130,7 @@ fn main() {
                 selected_vel = ((point2.0 - point1.0) / 50.0, (point2.1 - point1.1) / 50.0);
             } else {
                 pos_selected = false;
-                system.add(selected_pos.0, selected_pos.1, selected_vel.0, selected_vel.1, 1.0, selected_size / cam.zoom);
+                system.add(selected_pos.0, selected_pos.1, selected_vel.0, selected_vel.1, selected_density, selected_size / cam.zoom);
             }
         }
 
@@ -151,12 +160,31 @@ fn main() {
             }
         }
 
+        if key_state.is_scancode_pressed(Scancode::V) {
+            selected_density += density_speed * time_mult;
+            if selected_density < 1.0 {
+                selected_density = 1.0;
+            }
+        }
+        if key_state.is_scancode_pressed(Scancode::C) {
+            selected_density -= density_speed * time_mult;
+            if selected_density < 1.0 {
+                selected_density = 1.0;
+            }
+        }
+
         system.update(&time_mult);
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 
+        let color_g = if selected_density > 255f32 {
+            0 as u8
+        } else {
+            (255f32 - selected_density) as u8
+        };
+
         let selected_transformed = cam.transform(selected_pos);
-        canvas.filled_circle(selected_transformed.0 as i16, selected_transformed.1 as i16, (selected_size) as i16, (255, 255, 255, 50))
+        canvas.filled_circle(selected_transformed.0 as i16, selected_transformed.1 as i16, (selected_size) as i16, (255, color_g, 255, 50))
             .expect("Failed to draw cursor circle");
 
         if pos_selected {
@@ -169,8 +197,10 @@ fn main() {
         system.render(&mut canvas, &cam);
 
         // Render Fonts
-        font.draw_multiline(&mut canvas, format!("R: RESET\nZ/X: CHANGE SIZE\nSCROLL: ZOOM").as_str(), 10 * res_mult as i32, 10 * res_mult as i32, false, 20 * res_mult as i32);
-        font.draw(&mut canvas, format!("{} FPS", fps).as_str(), 10 * res_mult as i32, 10 * res_mult as i32, true);
+        if show_hud {
+            font.draw_multiline(&mut canvas, format!("R: RESET\nH: TOGGLE HUD\nSCROLL: ZOOM\nZ/X: CHANGE SIZE\nC/V: CHANGE DENSITY").as_str(), 10 * res_mult as i32, 10 * res_mult as i32, false, 20 * res_mult as i32);
+            font.draw(&mut canvas, format!("{} FPS", fps).as_str(), 10 * res_mult as i32, 10 * res_mult as i32, true);
+        }
         canvas.present();
     }
 }

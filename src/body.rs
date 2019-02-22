@@ -1,4 +1,5 @@
 use sdl2::render::WindowCanvas;
+use sdl2::pixels::Color;
 use sdl2::gfx::primitives::DrawRenderer;
 use cam::Cam;
 
@@ -14,6 +15,7 @@ pub struct Body {
     pub v_y: f32,
     pub mass: f32,
     pub size: f32,
+    pub density: f32,
     pub color: (u8, u8, u8, u8),
 }
 
@@ -30,6 +32,7 @@ impl Body {
             a_y: 0f32,
             mass: 0f32,
             size: 0f32,
+            density: 0f32,
             color: (255, 255, 255, 255),
         }
     }
@@ -38,16 +41,20 @@ impl Body {
         self.past_x = self.x;
         self.past_y = self.y;
 
-        self.x += self.v_x * mult;
-        self.y += self.v_y * mult;
+        self.x += self.v_x * mult + 0.5 * self.a_x * mult * mult;
+        self.y += self.v_y * mult + 0.5 * self.a_y * mult * mult;
 
         self.v_x += self.a_x * mult;
         self.v_y += self.a_y * mult;
     }
 
     pub fn compute_gravity(&mut self, body: Body) {
+        let min_distance = 0.0001;
         let direction = (body.x - self.x, body.y - self.y);
-        let distance = ((body.x - self.x).powi(2) + (body.y - self.y).powi(2)).sqrt();
+        let mut distance = ((body.x - self.x).powi(2) + (body.y - self.y).powi(2)).sqrt();
+        if distance < min_distance {
+            distance = min_distance;
+        }
         let unit_direction = (direction.0 / distance, direction.1 / distance);
         let force_scalar = ::GRAVITY_CONST * self.mass * body.mass / distance.powi(2);
         let acc_scalar = force_scalar / self.mass;
@@ -57,7 +64,13 @@ impl Body {
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas, cam: &Cam) {
+        let color_g = if self.density > 255f32 {
+            0 as u8
+        } else {
+            (255f32 - self.density) as u8
+        };
+
         let t = cam.transform((self.x, self.y));
-        canvas.filled_circle(t.0 as i16, t.1 as i16, (self.size * cam.zoom) as i16, self.color);
+        canvas.filled_circle(t.0 as i16, t.1 as i16, (self.size * cam.zoom) as i16, (255, color_g, 255, 255));
     }
 }
