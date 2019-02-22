@@ -9,6 +9,8 @@ pub struct Body {
     pub past_y: f32,
     pub x: f32,
     pub y: f32,
+    pub past_a_x: f32,
+    pub past_a_y: f32,
     pub a_x: f32,
     pub a_y: f32,
     pub v_x: f32,
@@ -28,6 +30,8 @@ impl Body {
             y: 0f32,
             v_x: 0f32,
             v_y: 0f32,
+            past_a_x: 0f32,
+            past_a_y: 0f32,
             a_x: 0f32,
             a_y: 0f32,
             mass: 0f32,
@@ -41,11 +45,14 @@ impl Body {
         self.past_x = self.x;
         self.past_y = self.y;
 
-        self.x += self.v_x * mult + 0.5 * self.a_x * mult * mult;
-        self.y += self.v_y * mult + 0.5 * self.a_y * mult * mult;
+        self.x += self.v_x * mult + 0.5 * self.past_a_x * mult * mult;
+        self.y += self.v_y * mult + 0.5 * self.past_a_y * mult * mult;
 
-        self.v_x += self.a_x * mult;
-        self.v_y += self.a_y * mult;
+        self.v_x += 0.5 * (self.past_a_x + self.a_x) * mult;
+        self.v_y += 0.5 * (self.past_a_y + self.a_y) * mult;
+
+        self.past_a_x = self.a_x;
+        self.past_a_y = self.a_y;
     }
 
     pub fn compute_gravity(&mut self, body: Body) {
