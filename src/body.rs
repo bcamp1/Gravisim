@@ -20,19 +20,19 @@ pub struct Body {
 }
 
 impl Body {
-    pub fn new() -> Body {
+    pub fn new(x: f32, y: f32, v_x: f32, v_y: f32, density: f32, size: f32) -> Body {
         Body {
             past_x: 0f32,
             past_y: 0f32,
-            x: 0f32,
-            y: 0f32,
-            v_x: 0f32,
-            v_y: 0f32,
+            x,
+            y,
+            v_x,
+            v_y,
             a_x: 0f32,
             a_y: 0f32,
-            mass: 0f32,
-            size: 0f32,
-            density: 0f32,
+            mass: (4.0 / 3.0) * ::PI * size.powi(3) * density,
+            size,
+            density,
             color: (255, 255, 255, 255),
         }
     }

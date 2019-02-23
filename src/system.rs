@@ -14,14 +14,7 @@ impl System {
     }
 
     pub fn add(&mut self, x: f32, y: f32, v_x: f32, v_y: f32, density: f32, size: f32) {
-        let mut body = Body::new();
-        body.x = x;
-        body.y = y;
-        body.v_x = v_x;
-        body.v_y = v_y;
-        body.mass = (4.0 / 3.0) * ::PI * size.powi(3) * density;
-        body.size = size;
-        body.density = density;
+        let body = Body::new(x, y, v_x, v_y, density, size);
         self.bodies.push(body);
     }
 
