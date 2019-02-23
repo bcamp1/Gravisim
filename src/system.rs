@@ -14,14 +14,7 @@ impl System {
     }
 
     pub fn add(&mut self, x: f32, y: f32, v_x: f32, v_y: f32, density: f32, size: f32) {
-        let mut body = Body::new();
-        body.x = x;
-        body.y = y;
-        body.v_x = v_x;
-        body.v_y = v_y;
-        body.mass = (4.0 / 3.0) * ::PI * size.powi(3) * density;
-        body.size = size;
-        body.density = density;
+        let body = Body::new(x, y, v_x, v_y, density, size);
         self.bodies.push(body);
     }
 
@@ -53,15 +46,10 @@ impl System {
                     let is_collided = distance <= rad_sum;
 
                     if is_collided {
-                        let bigger_index = if body_i.size >= body_j.size {
-                            i
+                        let (bigger_index, smaller_index) = if body_i.size >= body_j.size {
+                            (i, j)
                         } else {
-                            j
-                        };
-                        let smaller_index = if body_i.size >= body_j.size {
-                            j
-                        } else {
-                            i
+                            (j, i)
                         };
 
                         to_remove.push(smaller_index);
@@ -75,16 +63,18 @@ impl System {
         }
 
         // Remove bodies
-        let mut removed = 0;
-        for i in to_remove {
-            self.bodies.remove((i - removed) as usize);
-            removed += 1;
-        }
+        let mut remaining_bodies: Vec<Body> = self.bodies
+            .drain(..)
+            .enumerate()
+            .filter_map(|(index, body)| {
+                if to_remove.contains(&index) { None }
+                else { Some(body) }
+            })
+            .collect();
+        self.bodies.append(&mut remaining_bodies);
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas, cam: &Cam) {
-        for i in 0..self.bodies.len() {
-            self.bodies[i].render(canvas, cam);
-        }
+        self.bodies.iter().for_each(|body| body.render(canvas, cam));
     }
 }

@@ -20,19 +20,19 @@ pub struct Body {
 }
 
 impl Body {
-    pub fn new() -> Body {
+    pub fn new(x: f32, y: f32, v_x: f32, v_y: f32, density: f32, size: f32) -> Body {
         Body {
             past_x: 0f32,
             past_y: 0f32,
-            x: 0f32,
-            y: 0f32,
-            v_x: 0f32,
-            v_y: 0f32,
+            x,
+            y,
+            v_x,
+            v_y,
             a_x: 0f32,
             a_y: 0f32,
-            mass: 0f32,
-            size: 0f32,
-            density: 0f32,
+            mass: (4.0 / 3.0) * ::PI * size.powi(3) * density,
+            size,
+            density,
             color: (255, 255, 255, 255),
         }
     }
@@ -64,11 +64,7 @@ impl Body {
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas, cam: &Cam) {
-        let color_g = if self.density > 255f32 {
-            0 as u8
-        } else {
-            (255f32 - self.density) as u8
-        };
+        let color_g = 255u8.saturating_sub(self.density as u8);
 
         let t = cam.transform((self.x, self.y));
         canvas.filled_circle(t.0 as i16, t.1 as i16, (self.size * cam.zoom) as i16, (255, color_g, 255, 255));
