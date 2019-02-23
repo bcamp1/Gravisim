@@ -51,11 +51,11 @@ impl Body {
         self.v_x += (self.a_x + self.past_a_x) * mult * 0.5;
         self.v_y += (self.a_y + self.past_a_y) * mult * 0.5;
 
-        self.past_a_x = self.a_x;
-        self.past_a_y = self.a_y;
+        self.past_a_x = self.a_x * mult;
+        self.past_a_y = self.a_y * mult;
     }
 
-    pub fn compute_gravity(&mut self, body: Body) {
+    pub fn compute_gravity(&mut self, body: Body, mult: &f32) {
         let min_distance = 0.0001;
         let direction = (body.x - self.x, body.y - self.y);
         let mut distance = ((body.x - self.x).powi(2) + (body.y - self.y).powi(2)).sqrt();

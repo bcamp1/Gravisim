@@ -37,7 +37,7 @@ impl System {
                 }
                 if i != j {
                     let body_j = self.bodies[j];
-                    self.bodies[i].compute_gravity(body_j);
+                    self.bodies[i].compute_gravity(body_j, mult);
                     let body_i = self.bodies[i];
 
                     // Collisions
