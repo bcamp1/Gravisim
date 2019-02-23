@@ -68,11 +68,15 @@ impl System {
         }
 
         // Remove bodies
-        let mut removed = 0;
-        for i in to_remove {
-            self.bodies.remove((i - removed) as usize);
-            removed += 1;
-        }
+        let mut remaining_bodies: Vec<Body> = self.bodies
+            .drain(..)
+            .enumerate()
+            .filter_map(|(index, body)| {
+                if to_remove.contains(&index) { None }
+                else { Some(body) }
+            })
+            .collect();
+        self.bodies.append(&mut remaining_bodies);
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas, cam: &Cam) {
