@@ -46,15 +46,10 @@ impl System {
                     let is_collided = distance <= rad_sum;
 
                     if is_collided {
-                        let bigger_index = if body_i.size >= body_j.size {
-                            i
+                        let (bigger_index, smaller_index) = if body_i.size >= body_j.size {
+                            (i, j)
                         } else {
-                            j
-                        };
-                        let smaller_index = if body_i.size >= body_j.size {
-                            j
-                        } else {
-                            i
+                            (j, i)
                         };
 
                         to_remove.push(smaller_index);
@@ -80,8 +75,6 @@ impl System {
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas, cam: &Cam) {
-        for i in 0..self.bodies.len() {
-            self.bodies[i].render(canvas, cam);
-        }
+        self.bodies.iter().for_each(|body| body.render(canvas, cam));
     }
 }
