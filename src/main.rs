@@ -65,11 +65,14 @@ fn main() {
     // FPS
     let mut fps_sw = Stopwatch::start_new();
 
+    let mut total_time = 0f32;
+
     'running: loop {
         //FPS and Time Mult
         let elapsed_nanos = fps_sw.elapsed().subsec_nanos();
         let fps = 1_000_000_000 / elapsed_nanos;
         let time_mult = (elapsed_nanos as f32) * 400.0 / 1_000_000_000f32;
+        total_time += time_mult;
         fps_sw.restart();
 
         // Events
@@ -173,7 +176,7 @@ fn main() {
             }
         }
 
-        system.update(&time_mult);
+        system.update(&time_mult, &total_time);
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 

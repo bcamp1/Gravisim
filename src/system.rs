@@ -18,7 +18,7 @@ impl System {
         self.bodies.push(body);
     }
 
-    pub fn update(&mut self, mult: &f32) {
+    pub fn update(&mut self, mult: &f32, total_time: &f32) {
         let mut to_remove: Vec<usize> = vec!();
 
         for i in 0..self.bodies.len() {
@@ -59,7 +59,7 @@ impl System {
                 }
             }
             // Update Self
-            self.bodies[i].update_self(mult);
+            self.bodies[i].update_self(mult, total_time);
         }
 
         // Remove bodies

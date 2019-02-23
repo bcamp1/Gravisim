@@ -5,6 +5,8 @@ use cam::Cam;
 
 #[derive(Copy, Clone)]
 pub struct Body {
+    pub past_a_x: f32,
+    pub past_a_y: f32,
     pub past_x: f32,
     pub past_y: f32,
     pub x: f32,
@@ -22,6 +24,8 @@ pub struct Body {
 impl Body {
     pub fn new(x: f32, y: f32, v_x: f32, v_y: f32, density: f32, size: f32) -> Body {
         Body {
+            past_a_x: 0f32,
+            past_a_y: 0f32,
             past_x: 0f32,
             past_y: 0f32,
             x,
@@ -37,15 +41,18 @@ impl Body {
         }
     }
 
-    pub fn update_self(&mut self, mult: &f32) {
+    pub fn update_self(&mut self, mult: &f32, total_time: &f32) {
         self.past_x = self.x;
         self.past_y = self.y;
 
-        self.x += self.v_x * mult + 0.5 * self.a_x * mult * mult;
-        self.y += self.v_y * mult + 0.5 * self.a_y * mult * mult;
+        self.x += (self.v_x * mult) + (0.5 * self.a_x * mult.powi(2));
+        self.y += (self.v_y * mult) + (0.5 * self.a_y * mult.powi(2));
 
-        self.v_x += self.a_x * mult;
-        self.v_y += self.a_y * mult;
+        self.v_x += (self.a_x + self.past_a_x) * mult * 0.5;
+        self.v_y += (self.a_y + self.past_a_y) * mult * 0.5;
+
+        self.past_a_x = self.a_x;
+        self.past_a_y = self.a_y;
     }
 
     pub fn compute_gravity(&mut self, body: Body) {
