@@ -17,7 +17,7 @@ pub struct Body {
 }
 
 impl Body {
-    pub fn new() -> Body {
+    pub fn new(x: f32, y: f32, v_x: f32, v_y: f32, density: f32, size: f32) -> Body {
         Body {
             prev_position: Vector2d { x: 0f32, y: 0f32 },
             position: Vector2d { x: 0f32, y: 0f32 },
@@ -39,7 +39,7 @@ impl Body {
         self.velocity.y += self.acceleration.y * mult;
     }
 
-    pub fn compute_gravity(&mut self, body: Body) {
+    pub fn compute_gravity(&mut self, body: Body, mult: &f32) {
         let min_distance = 0.0001;
         let direction = (
             body.position.x - self.position.x,

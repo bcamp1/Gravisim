@@ -14,7 +14,7 @@ impl System {
     }
 
     pub fn add(&mut self, x: f32, y: f32, v_x: f32, v_y: f32, density: f32, size: f32) {
-        let mut body = Body::new();
+        let mut body = Body::new(x, y, v_x, v_y, density, size);
         body.position = Vector2d { x: x, y: y };
         body.velocity = Vector2d { x: v_x, y: v_y };
         body.mass = (4.0 / 3.0) * ::PI * size.powi(3) * density;
@@ -50,7 +50,7 @@ impl System {
                 }
                 if i != j {
                     let body_j = self.bodies[j];
-                    self.bodies[i].compute_gravity(body_j);
+                    self.bodies[i].compute_gravity(body_j, mult);
                     let body_i = self.bodies[i];
 
                     // Collisions
@@ -116,16 +116,21 @@ impl System {
         }
 
         // Remove bodies
-        let mut removed = 0;
-        for i in to_remove {
-            self.bodies.remove((i - removed) as usize);
-            removed += 1;
-        }
+        let mut remaining_bodies: Vec<Body> = self
+            .bodies
+            .drain(..)
+            .enumerate()
+            .filter_map(|(index, body)| {
+                if to_remove.contains(&index) {
+                    None
+                } else {
+                    Some(body)
+                }
+            }).collect();
+        self.bodies.append(&mut remaining_bodies);
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas, cam: &Cam) {
-        for i in 0..self.bodies.len() {
-            self.bodies[i].render(canvas, cam);
-        }
+        self.bodies.iter().for_each(|body| body.render(canvas, cam));
     }
 }
