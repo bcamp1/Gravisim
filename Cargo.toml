@@ -5,6 +5,7 @@ authors = ["Branson Camp <camp.branson@gmail.com>"]
 
 [dependencies]
 stopwatch = "0.0.7"
+rand = "0.4"
 
 [dependencies.sdl2]
 version = "0.31.0"
