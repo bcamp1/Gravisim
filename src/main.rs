@@ -67,6 +67,8 @@ fn main() {
 
     let mut total_time = 0f32;
 
+    let mut elastic_collisions = false;
+
     'running: loop {
         //FPS and Time Mult
         let elapsed_nanos = fps_sw.elapsed().subsec_nanos();
@@ -102,6 +104,9 @@ fn main() {
                 },
                 Event::KeyDown {keycode: Some(Keycode::H), ..} => {
                     show_hud = !show_hud;
+                },
+                Event::KeyDown {keycode: Some(Keycode::E), ..} => {
+                    elastic_collisions = !elastic_collisions;
                 }
                 _ => {}
             }
@@ -176,7 +181,7 @@ fn main() {
             }
         }
 
-        system.update(&time_mult, &total_time);
+        system.update(&time_mult, &total_time, elastic_collisions);
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 
@@ -200,8 +205,14 @@ fn main() {
         system.render(&mut canvas, &cam);
 
         // Render Fonts
+        let elastic_string = if elastic_collisions {
+            "ENABLED [EXPERIMENTAL]"
+        } else {
+            "DISABLED"
+        };
+
         if show_hud {
-            font.draw_multiline(&mut canvas, format!("R: RESET\nH: TOGGLE HUD\nSCROLL: ZOOM\nZ/X: CHANGE SIZE\nC/V: CHANGE DENSITY").as_str(), 10 * res_mult as i32, 10 * res_mult as i32, false, 20 * res_mult as i32);
+            font.draw_multiline(&mut canvas, format!("R: RESET\nH: TOGGLE HUD\nSCROLL: ZOOM\nZ/X: CHANGE SIZE\nC/V: CHANGE DENSITY\nE: TOGGLE ELASTIC ({})", elastic_string).as_str(), 10 * res_mult as i32, 10 * res_mult as i32, false, 20 * res_mult as i32);
             font.draw(&mut canvas, format!("{} FPS", fps).as_str(), 10 * res_mult as i32, 10 * res_mult as i32, true);
         }
         canvas.present();
