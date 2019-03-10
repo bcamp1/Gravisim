@@ -7,5 +7,5 @@ authors = ["Branson Camp <camp.branson@gmail.com>"]
 stopwatch = "0.0.7"
 
 [dependencies.sdl2]
-version = "0.31.0"
+version = "0.32.1"
 features = ["gfx", "ttf"]
